@@ -4,6 +4,29 @@ const bodyParser = require('body-parser');
 const app = express();
 app.use(bodyParser.json());
 
+// Курси валют 
+const exchangeRates = {
+    USD: 40.60 ,    
+    EUR: 45.20,    
+};
+
+// Маршрут для обробки конвертації валюти
+app.post('/convert', (req, res) => {
+    const { currency, amount } = req.body;
+
+    if (!currency || !amount || typeof amount !== 'number') {
+        return res.status(400).json({ error: 'Некоректні дані. Вкажіть валюту і кількість' });
+    }
+
+    const rate = exchangeRates[currency.toUpperCase()];
+    if (!rate) {
+        return res.status(400).json({ error: 'Невідома валюта' });
+    }
+
+    const result = amount * rate;
+    res.json({ amount, currency, resultInUAH: result });
+});
+
 let tasks = [
     { id: 1, name: 'Task 1' },
     { id: 2, name: 'Task 2' },
@@ -46,3 +69,4 @@ app.delete('/tasks/:id', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
